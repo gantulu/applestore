@@ -1,0 +1,667 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webflow Product Cart</title>
+<style>
+  body { font-family: Arial, sans-serif; margin:0; padding:0; }
+  .product-list { display:flex; flex-wrap:wrap; gap:16px; padding:16px; }
+  .product-card { border:1px solid #ccc; padding:12px; width:200px; border-radius:8px; }
+  .product-image-wrapper { width:100%; text-align:center; margin-bottom:8px; }
+  .product-image { max-width:100%; height:auto; border-radius:4px; }
+  .product-title { font-weight:bold; margin-bottom:4px; }
+  .product-price { color:#333; }
+  .product-sale-price { color:red; font-weight:bold; }
+  .product-action { margin-top:8px; text-align:center; }
+  .add-to-cart-btn { padding:6px 12px; border:none; background:#007BFF; color:white; border-radius:4px; cursor:pointer; }
+
+  /* Modal */
+  .cart-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
+  .cart-modal.show { display:flex; }
+  .cart-body { background:white; padding:24px; border-radius:8px; width:90%; max-width:500px; max-height:90%; overflow:auto; position:relative; }
+  .close-cart { position:absolute; top:8px; right:8px; cursor:pointer; font-size:18px; font-weight:bold; }
+
+  /* Cart form */
+  .cart-label { display:block; margin:8px 0 4px; }
+  .cart-input, .cart-select, .cart-textarea { width:100%; padding:6px; margin-bottom:8px; border:1px solid #ccc; border-radius:4px; }
+  .cart-btn { padding:8px 16px; background:#28A745; color:white; border:none; border-radius:4px; cursor:pointer; width:100%; }
+  .cart-continue-wrapper { margin-top:12px; }
+  .cart-product { display:flex; gap:12px; margin-bottom:12px; }
+  .cart-img { width:100px; border-radius:6px; }
+
+  /* Description */
+  .cart-description {
+    margin-top: 12px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.4em;
+  }
+
+  /* Animasi slide untuk customer form */
+  .cart-customer {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+  }
+  .cart-customer.show {
+    max-height: 1000px;
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="product-list"><div class="product-card">
+        <div class="product-group">iphone15</div>
+        <div class="product-image-wrapper">
+          <img class="product-image" src="https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fa%2Fp%2Fapple_iphone_15_black_1_1.jpg&amp;w=1920&amp;q=45" alt="iPhone 15">
+        </div>
+        <div class="product-info">
+          <div class="product-title">iPhone 15</div>
+          <div class="product-price">RM4,399</div>
+          <div class="product-discount">15%</div>
+          <div class="product-sale-price">RM3,739</div>
+        </div>
+        <div class="product-action">
+          <button class="add-to-cart-btn" data-groupid="iphone15">Add to Cart</button>
+        </div>
+      </div><div class="product-card">
+        <div class="product-group">iphone15plus</div>
+        <div class="product-image-wrapper">
+          <img class="product-image" src="https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fa%2Fp%2Fapple_iphone_15_plus_black_1.jpg&amp;w=1920&amp;q=45" alt="iPhone 15 Plus">
+        </div>
+        <div class="product-info">
+          <div class="product-title">iPhone 15 Plus</div>
+          <div class="product-price">RM4,899</div>
+          <div class="product-discount">15%</div>
+          <div class="product-sale-price">RM4,164</div>
+        </div>
+        <div class="product-action">
+          <button class="add-to-cart-btn" data-groupid="iphone15plus">Add to Cart</button>
+        </div>
+      </div><div class="product-card">
+        <div class="product-group">iphone16e</div>
+        <div class="product-image-wrapper">
+          <img class="product-image" src="https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fi%2Fp%2Fiphone_16e_black_01_3.jpg&amp;w=1920&amp;q=45" alt="iPhone 16e">
+        </div>
+        <div class="product-info">
+          <div class="product-title">iPhone 16e</div>
+          <div class="product-price">RM4,199</div>
+          <div class="product-discount">15%</div>
+          <div class="product-sale-price">RM3,569</div>
+        </div>
+        <div class="product-action">
+          <button class="add-to-cart-btn" data-groupid="iphone16e">Add to Cart</button>
+        </div>
+      </div><div class="product-card">
+        <div class="product-group">iphone16</div>
+        <div class="product-image-wrapper">
+          <img class="product-image" src="https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fi%2Fp%2Fiphone_16_black_01_3.jpg&amp;w=1920&amp;q=45" alt="iPhone 16">
+        </div>
+        <div class="product-info">
+          <div class="product-title">iPhone 16</div>
+          <div class="product-price">RM4,799</div>
+          <div class="product-discount">15%</div>
+          <div class="product-sale-price">RM4,079</div>
+        </div>
+        <div class="product-action">
+          <button class="add-to-cart-btn" data-groupid="iphone16">Add to Cart</button>
+        </div>
+      </div><div class="product-card">
+        <div class="product-group">iphone16plus</div>
+        <div class="product-image-wrapper">
+          <img class="product-image" src="https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fi%2Fp%2Fiphone_16_plus_black_01_3.jpg&amp;w=1920&amp;q=45" alt="iPhone 16 Plus">
+        </div>
+        <div class="product-info">
+          <div class="product-title">iPhone 16 Plus</div>
+          <div class="product-price">RM5,299</div>
+          <div class="product-discount">15%</div>
+          <div class="product-sale-price">RM4,504</div>
+        </div>
+        <div class="product-action">
+          <button class="add-to-cart-btn" data-groupid="iphone16plus">Add to Cart</button>
+        </div>
+      </div><div class="product-card">
+        <div class="product-group">iphone16pro</div>
+        <div class="product-image-wrapper">
+          <img class="product-image" src="https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fi%2Fp%2Fiphone_16_pro_black_titanium_01_4.jpg&amp;w=1920&amp;q=45" alt="iPhone 16 Pro">
+        </div>
+        <div class="product-info">
+          <div class="product-title">iPhone 16 Pro</div>
+          <div class="product-price">RM5,899</div>
+          <div class="product-discount">15%</div>
+          <div class="product-sale-price">RM5,014</div>
+        </div>
+        <div class="product-action">
+          <button class="add-to-cart-btn" data-groupid="iphone16pro">Add to Cart</button>
+        </div>
+      </div><div class="product-card">
+        <div class="product-group">iphone16promax</div>
+        <div class="product-image-wrapper">
+          <img class="product-image" src="https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fi%2Fp%2Fiphone_16_pro_max_black_titanium_01_1_1.jpg&amp;w=1920&amp;q=45" alt="iPhone 16 Pro Max">
+        </div>
+        <div class="product-info">
+          <div class="product-title">iPhone 16 Pro Max</div>
+          <div class="product-price">RM6,199</div>
+          <div class="product-discount">15%</div>
+          <div class="product-sale-price">RM5,269</div>
+        </div>
+        <div class="product-action">
+          <button class="add-to-cart-btn" data-groupid="iphone16promax">Add to Cart</button>
+        </div>
+      </div></div>
+
+<div class="cart-modal">
+  <div class="cart-body"><div class="close-cart">X</div>
+    <form class="cart-form">
+      <div class="cart-product">
+        <div class="cart-img-wrapper">
+          <img class="cart-img" src="https://ibox.co.id/_next/image?url=https%3A%2F%2Fcdnpro.eraspace.com%2Fmedia%2Fcatalog%2Fproduct%2Fi%2Fp%2Fiphone_16e_black_01_3.jpg&amp;w=1920&amp;q=45" alt="iPhone 16e">
+        </div>
+        <div>
+          <div class="cart-title">iPhone 16e</div>
+          <div class="cart-color">Black</div>
+          <div class="cart-size">128GB</div>
+          <div class="cart-prices">
+            <div class="cart-price">RM4,199</div>
+            <div class="cart-sale-price">RM3,569</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-selection">
+        <label class="cart-label">Color</label>
+        <select class="cart-select cart-select-color" name="color">
+          <option value="Black">Black</option><option value="White">White</option>
+        </select>
+
+        <label class="cart-label">Size</label>
+        <select class="cart-select cart-select-size" name="size">
+          <option value="128GB">128GB</option><option value="256GB">256GB</option><option value="512GB">512GB</option>
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div class="cart-description">Apple iPhone 16e dengan chip A18 Bionic, layar Super Retina XDR 6.1 inci, desain premium dan kamera ganda 48MP.</div>
+
+      <!-- Tombol Continue -->
+      <div class="cart-continue-wrapper">
+        <button type="button" class="cart-btn cart-continue-btn">Continue</button>
+      </div>
+
+      <!-- Bagian customer dengan animasi -->
+      <div class="cart-customer">
+        <label class="cart-label">Nama</label>
+        <input class="cart-input cart-nama" name="nama" type="text" required="">
+
+        <label class="cart-label">WhatsApp</label>
+        <input class="cart-input cart-whatsapp" name="whatsapp" type="text" required="">
+
+        <label class="cart-label">Email</label>
+        <input class="cart-input cart-email" name="email" type="email" required="">
+
+        <label class="cart-label">Alamat Lengkap</label>
+        <textarea class="cart-textarea cart-alamat" name="alamat" required=""></textarea>
+
+        <label class="cart-label">Metode Pengiriman</label>
+        <select class="cart-select cart-metode" name="metode" required="">
+          <option value="jne">JNE</option>
+          <option value="pos">POS</option>
+          <option value="tiki">TIKI</option>
+        </select>
+
+        <button type="submit" class="cart-btn checkout-btn">Checkout</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const apiURL = "https://opensheet.elk.sh/138LMOwLK7fTR4IBzaRglPkU-0bkrugUXW-7D4RNLJrA/iphone";
+let allData = [];
+
+function formatRM(num) {
+  return "RM" + Number(num).toLocaleString('ms-MY');
+}
+
+fetch(apiURL)
+  .then(res => res.json())
+  .then(data => {
+    allData = data;
+    console.log("Data dari API:", data);
+    
+    // Cek apakah ada data untuk iphone16pro
+    const iphone16proData = data.filter(item => item.item_group_id === "iphone16pro");
+    console.log("Data iphone16pro:", iphone16proData);
+    
+    const groups = data.reduce((acc, item) => {
+      const groupId = item.item_group_id || "Unknown Group";
+      if (!acc[groupId]) acc[groupId] = item;
+      return acc;
+    }, {});
+
+    const container = document.querySelector(".product-list");
+    container.innerHTML = "";
+
+    for (const groupId in groups) {
+      const item = groups[groupId];
+      const productCard = document.createElement("div");
+      productCard.className = "product-card";
+      productCard.innerHTML = `
+        <div class="product-group">${groupId}</div>
+        <div class="product-image-wrapper">
+          <img class="product-image" src="${item.image_link}" alt="${item.title}" />
+        </div>
+        <div class="product-info">
+          <div class="product-title">${item.title}</div>
+          <div class="product-price">${formatRM(item.price)}</div>
+          <div class="product-discount">${item.diskon}</div>
+          <div class="product-sale-price">${formatRM(item.sale_price)}</div>
+        </div>
+        <div class="product-action">
+          <button class="add-to-cart-btn" data-groupid="${groupId}">Add to Cart</button>
+        </div>
+      `;
+      container.appendChild(productCard);
+    }
+    
+    // Cek parameter URL setelah data dimuat
+    const urlParams = new URLSearchParams(window.location.search);
+    const itemGroupId = urlParams.get("itemgroupid");
+    if (itemGroupId) {
+      console.log("Membuka modal untuk:", itemGroupId);
+      openCartModal(itemGroupId);
+    }
+  })
+  .catch(err => {
+    console.error("Error fetch data:", err);
+    document.querySelector(".product-list").innerHTML = "<div class='load-error'>Gagal memuat data.</div>";
+  });
+
+// Event delegation
+document.body.addEventListener("click", e => {
+  if(e.target.classList.contains("add-to-cart-btn")) {
+    const groupId = e.target.dataset.groupid;
+    openCartModal(groupId);
+    history.replaceState(null, '', `?itemgroupid=${groupId}`);
+  }
+  if(e.target.classList.contains("close-cart")) {
+    closeCartModal();
+  }
+});
+
+function closeCartModal() {
+  const modal = document.querySelector(".cart-modal");
+  modal.classList.remove("show");
+  document.body.style.overflow = "";
+  history.replaceState(null, '', window.location.pathname);
+}
+
+function openCartModal(groupId) {
+  const modal = document.querySelector(".cart-modal");
+  const cartBody = modal.querySelector(".cart-body");
+  const variants = allData.filter(item => item.item_group_id === groupId);
+
+  if (!variants.length) {
+    cartBody.innerHTML = `<div class="close-cart">X</div><p>Tidak ada variant ditemukan.</p>`;
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden";
+    return;
+  }
+
+  const first = variants[0];
+  const colors = [...new Set(variants.map(v => v.color).filter(Boolean))];
+  const sizes = [...new Set(variants.map(v => v.size).filter(Boolean))];
+
+  const formHTML = `
+    <form class="cart-form">
+      <div class="cart-product">
+        <div class="cart-img-wrapper">
+          <img class="cart-img" src="${first.image_link}" alt="${first.title}" />
+        </div>
+        <div>
+          <div class="cart-title">${first.title}</div>
+          <div class="cart-color">${first.color || '-'}</div>
+          <div class="cart-size">${first.size || '-'}</div>
+          <div class="cart-prices">
+            <div class="cart-price">${formatRM(first.price)}</div>
+            <div class="cart-sale-price">${formatRM(first.sale_price || first.price)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-selection">
+        <label class="cart-label">Color</label>
+        <select class="cart-select cart-select-color" name="color">
+          ${colors.map(c => `<option value="${c}">${c}</option>`).join('')}
+        </select>
+
+        <label class="cart-label">Size</label>
+        <select class="cart-select cart-select-size" name="size">
+          ${sizes.map(s => `<option value="${s}">${s}</option>`).join('')}
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div class="cart-description">
+        ${first.description || "No description available for this product."}
+      </div>
+
+      <!-- Tombol Continue -->
+      <div class="cart-continue-wrapper">
+        <button type="button" class="cart-btn cart-continue-btn">Continue</button>
+      </div>
+
+      <!-- Bagian customer dengan animasi -->
+      <div class="cart-customer">
+        <label class="cart-label">Nama</label>
+        <input class="cart-input cart-nama" name="nama" type="text" required>
+
+        <label class="cart-label">WhatsApp</label>
+        <input class="cart-input cart-whatsapp" name="whatsapp" type="text" placeholder="Contoh: 01234567890" required pattern="[0-9+\s]*" title="Masukkan nomor WhatsApp yang valid (hanya angka, spasi, dan tanda +)">
+
+        <label class="cart-label">Email</label>
+        <input class="cart-input cart-email" name="email" type="email" required>
+
+        <label class="cart-label">Negara</label>
+        <select class="cart-select cart-negara" name="negara" required>
+          <option value="malaysia" selected>Malaysia</option>
+        </select>
+
+        <label class="cart-label">Negeri</label>
+        <select class="cart-select cart-negeri" name="negeri" required>
+          <option value="">Pilih Negeri</option>
+          <option value="johor">Johor</option>
+          <option value="kedah">Kedah</option>
+          <option value="kelantan">Kelantan</option>
+          <option value="melaka">Melaka</option>
+          <option value="negeri_sembilan">Negeri Sembilan</option>
+          <option value="pahang">Pahang</option>
+          <option value="perak">Perak</option>
+          <option value="perlis">Perlis</option>
+          <option value="pulau_pinang">Pulau Pinang</option>
+          <option value="sabah">Sabah</option>
+          <option value="sarawak">Sarawak</option>
+          <option value="selangor">Selangor</option>
+          <option value="terengganu">Terengganu</option>
+          <option value="kuala_lumpur">Wilayah Persekutuan Kuala Lumpur</option>
+          <option value="labuan">Wilayah Persekutuan Labuan</option>
+          <option value="putrajaya">Wilayah Persekutuan Putrajaya</option>
+        </select>
+
+        <label class="cart-label">Bandar</label>
+        <input class="cart-input cart-bandar" name="bandar" type="text" required>
+
+        <label class="cart-label">Poskod</label>
+        <input class="cart-input cart-poskod" name="poskod" type="text" required>
+
+        <label class="cart-label">Alamat Lengkap</label>
+        <textarea class="cart-textarea cart-alamat" name="alamat" required placeholder="Masukkan alamat lengkap (jalan, nombor rumah, dll)"></textarea>
+
+        <label class="cart-label">Metode Pengiriman</label>
+        <select class="cart-select cart-metode" name="metode" required>
+          <option value="jne">JNE</option>
+          <option value="pos">POS</option>
+          <option value="tiki">TIKI</option>
+        </select>
+
+        <button type="submit" class="cart-btn checkout-btn">Checkout</button>
+      </div>
+    </form>
+  `;
+
+  cartBody.innerHTML = `<div class="close-cart">X</div>` + formHTML;
+  modal.classList.add("show");
+  document.body.style.overflow = "hidden";
+
+  // Update variant on change
+  const imgEl = cartBody.querySelector(".cart-img");
+  const titleEl = cartBody.querySelector(".cart-title");
+  
+  // Konfigurasi kota berdasarkan negeri untuk Malaysia
+  const kotaByNegeri = {
+    "johor": ["Johor Bahru", "Batu Pahat", "Muar", "Kluang", "Segamat", "Pontian", "Kulai", "Mersing", "Kota Tinggi", "Tangkak"],
+    "kedah": ["Alor Setar", "Sungai Petani", "Kulim", "Langkawi", "Yan", "Baling", "Pendang", "Kubang Pasu", "Bandar Baharu", "Padang Terap"],
+    "kelantan": ["Kota Bharu", "Pasir Mas", "Tumpat", "Bachok", "Tanah Merah", "Pasir Puteh", "Kuala Krai", "Machang", "Gua Musang", "Jeli"],
+    "melaka": ["Melaka City", "Alor Gajah", "Jasin", "Masjid Tanah", "Merlimau", "Sungai Udang"],
+    "negeri_sembilan": ["Seremban", "Port Dickson", "Nilai", "Bahau", "Kuala Pilah", "Tampin", "Rembau", "Jempol"],
+    "pahang": ["Kuantan", "Temerloh", "Bentong", "Raub", "Jerantut", "Pekan", "Rompin", "Cameron Highlands", "Lipis", "Bera"],
+    "perak": ["Ipoh", "Taiping", "Teluk Intan", "Sitiawan", "Batu Gajah", "Kampar", "Kuala Kangsar", "Sungai Siput", "Tanjung Malim", "Tapah"],
+    "perlis": ["Kangar", "Arau", "Kuala Perlis", "Padang Besar"],
+    "pulau_pinang": ["George Town", "Butterworth", "Bukit Mertajam", "Nibong Tebal", "Balik Pulau", "Kepala Batas", "Tanjung Bungah", "Bayan Lepas"],
+    "sabah": ["Kota Kinabalu", "Sandakan", "Tawau", "Lahad Datu", "Keningau", "Semporna", "Kudat", "Ranau", "Beaufort", "Papar"],
+    "sarawak": ["Kuching", "Miri", "Sibu", "Bintulu", "Limbang", "Sarikei", "Sri Aman", "Kapit", "Samarahan", "Mukah"],
+    "selangor": ["Shah Alam", "Petaling Jaya", "Subang Jaya", "Klang", "Ampang Jaya", "Kajang", "Selayang", "Rawang", "Sepang", "Hulu Selangor"],
+    "terengganu": ["Kuala Terengganu", "Kemaman", "Dungun", "Marang", "Hulu Terengganu", "Besut", "Setiu"],
+    "kuala_lumpur": ["Kuala Lumpur", "Wangsa Maju", "Batu", "Kepong", "Titiwangsa", "Setiawangsa", "Bukit Bintang", "Cheras", "Lembah Pantai", "Seputeh"],
+    "labuan": ["Labuan Town", "Victoria"],
+    "putrajaya": ["Putrajaya"]
+  };
+  
+  // Fungsi untuk mengisi dropdown kota berdasarkan negeri yang dipilih
+  const negeriSelect = cartBody.querySelector(".cart-negeri");
+  const bandarInput = cartBody.querySelector(".cart-bandar");
+  
+  if (negeriSelect && bandarInput) {
+    // Ubah input bandar menjadi select dropdown
+    const bandarSelectHTML = `<select class="cart-select cart-bandar" name="bandar" required>
+      <option value="">Pilih Bandar</option>
+    </select>`;
+    
+    // Ganti input dengan select
+    bandarInput.outerHTML = bandarSelectHTML;
+    const bandarSelect = cartBody.querySelector(".cart-bandar");
+    
+    // Fungsi untuk mengisi dropdown kota berdasarkan negeri
+    function populateBandar(selectedNegeri) {
+      bandarSelect.innerHTML = '<option value="">Pilih Bandar</option>';
+      
+      if (selectedNegeri && kotaByNegeri[selectedNegeri]) {
+        kotaByNegeri[selectedNegeri].forEach(kota => {
+          const option = document.createElement("option");
+          option.value = kota.toLowerCase().replace(/ /g, "_");
+          option.textContent = kota;
+          bandarSelect.appendChild(option);
+        });
+      }
+    }
+    
+    // Event listener untuk perubahan negeri
+    negeriSelect.addEventListener("change", function() {
+      populateBandar(this.value);
+    });
+    
+    // Set default negeri ke Kuala Lumpur dan isi dropdown kota
+    negeriSelect.value = "kuala_lumpur";
+    populateBandar("kuala_lumpur");
+  }
+  const colorEl = cartBody.querySelector(".cart-color");
+  const sizeEl = cartBody.querySelector(".cart-size");
+  const priceEl = cartBody.querySelector(".cart-price");
+  const saleEl = cartBody.querySelector(".cart-sale-price");
+  const descEl = cartBody.querySelector(".cart-description");
+  const selColor = cartBody.querySelector(".cart-select-color");
+  const selSize = cartBody.querySelector(".cart-select-size");
+
+  function update() {
+    const col = selColor.value;
+    const sz = selSize.value;
+    const v = variants.find(x => x.color === col && x.size === sz);
+    if (v) {
+      imgEl.src = v.image_link;
+      imgEl.alt = v.title;
+      titleEl.textContent = v.title;
+      colorEl.textContent = v.color || '-';
+      sizeEl.textContent = v.size || '-';
+      priceEl.textContent = formatRM(v.price);
+      saleEl.textContent = formatRM(v.sale_price || v.price);
+      descEl.textContent = v.description || "No description available for this product.";
+    }
+  }
+  selColor.addEventListener('change', update);
+  selSize.addEventListener('change', update);
+  update();
+
+  // Event Continue
+  const continueBtn = cartBody.querySelector(".cart-continue-btn");
+  const customerSection = cartBody.querySelector(".cart-customer");
+  continueBtn.addEventListener("click", () => {
+    customerSection.classList.add("show");
+    continueBtn.parentElement.style.display = "none";
+  });
+
+  // Submit checkout
+  cartBody.querySelector(".cart-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const col = selColor.value;
+    const sz = selSize.value;
+    const v = variants.find(x => x.color === col && x.size === sz);
+    
+    // Ambil data alamat Malaysia
+    const nama = cartBody.querySelector(".cart-nama").value;
+    let whatsapp = cartBody.querySelector(".cart-whatsapp").value;
+    const email = cartBody.querySelector(".cart-email").value;
+    const negara = cartBody.querySelector(".cart-negara").value;
+    const negeri = cartBody.querySelector(".cart-negeri").value;
+    const bandar = cartBody.querySelector(".cart-bandar").value;
+    const poskod = cartBody.querySelector(".cart-poskod").value;
+    const alamat = cartBody.querySelector(".cart-alamat").value;
+    const metode = cartBody.querySelector(".cart-metode").value;
+    
+    // Validasi dan format nomor WhatsApp untuk Malaysia
+    whatsapp = whatsapp.replace(/\D/g, ''); // Hapus semua karakter non-digit
+    
+    // Hapus awalan 0 jika ada
+    if (whatsapp.startsWith('0')) {
+      whatsapp = whatsapp.substring(1);
+    }
+    
+    // Hapus kode negara jika sudah ada
+    if (whatsapp.startsWith('60')) {
+      whatsapp = whatsapp.substring(2);
+    }
+    
+    // Format nama negeri dan bandar untuk tampilan
+    const negeriText = negeriSelect.options[negeriSelect.selectedIndex].text;
+    const bandarSelect = cartBody.querySelector(".cart-bandar");
+    const bandarText = bandarSelect.options[bandarSelect.selectedIndex].text;
+    
+    if (v) {
+      // Hitung biaya pengiriman (contoh: RM52.00 tetap)
+      const biayaPengiriman = 52.00;
+      const hargaProduk = v.sale_price || v.price;
+      const totalHarga = hargaProduk + biayaPengiriman;
+      
+      // Format alamat lengkap
+      const alamatLengkap = `${alamat}, ${bandarText}, ${poskod}, ${negeriText}, ${negara}`;
+      
+      // Buat ID pesanan
+      const orderId = `ORDER-${Date.now()}`;
+      
+      // Format pesan untuk Fonnte
+      const pesanFonnte = `Konfirmasi pesanan Apple Store Malaysia.
+
+Nomor Pesanan: ${orderId}
+
+Pesananmu :
+${v.title}
+Color : ${v.color}
+Size : ${v.size}
+
+Penerima:
+${nama}
+${alamatLengkap}
+
+harga : ${formatRM(hargaProduk)}
+biaya pengiriman : ${formatRM(biayaPengiriman)}
+Total : ${formatRM(totalHarga)}`;
+      
+      // Simpan data pesanan ke localStorage sebagai cadangan
+      const orderData = {
+        orderId: orderId,
+        timestamp: new Date().toISOString(),
+        product: {
+          title: v.title,
+          color: v.color,
+          size: v.size,
+          price: hargaProduk,
+          image: v.image_link
+        },
+        customer: {
+          name: nama,
+          whatsapp: whatsapp,
+          email: email,
+          address: alamatLengkap,
+          country: negara,
+          state: negeriText,
+          city: bandarText,
+          postcode: poskod
+        },
+        shipping: {
+          method: metode,
+          cost: biayaPengiriman
+        },
+        total: totalHarga,
+        message: pesanFonnte
+      };
+      
+      // Simpan ke localStorage
+      try {
+        const existingOrders = JSON.parse(localStorage.getItem('appleStoreOrders') || '[]');
+        existingOrders.push(orderData);
+        localStorage.setItem('appleStoreOrders', JSON.stringify(existingOrders));
+        console.log('Order saved to localStorage');
+      } catch (err) {
+        console.error('Failed to save order to localStorage:', err);
+      }
+      
+      // Tampilkan indikator loading
+      const checkoutBtn = cartBody.querySelector(".checkout-btn");
+      const originalBtnText = checkoutBtn.textContent;
+      checkoutBtn.textContent = "Mengirim...";
+      checkoutBtn.disabled = true;
+      
+      // Kirim ke Fonnte API
+      fetch("https://api.fonnte.com/send", {
+        method: "POST",
+        headers: {
+          "Authorization": "tyD2abamsMySeyPyQUw2", // API key
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          target: whatsapp,
+          message: pesanFonnte,
+          countryCode: "60" // Kode negara Malaysia
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Sukses:", data);
+        checkoutBtn.textContent = originalBtnText;
+        checkoutBtn.disabled = false;
+        
+        if (data && data.status === true) {
+           alert(`Checkout berhasil! Pesan konfirmasi telah dikirim ke WhatsApp ${whatsapp}\n\nNomor Pesanan: ${orderData.orderId}\n\n${pesanFonnte}`);
+         } else {
+           alert(`Checkout berhasil, tetapi ada masalah saat mengirim pesan ke WhatsApp: ${data.reason || 'Unknown error'}\n\nNomor Pesanan: ${orderData.orderId}\n\n${pesanFonnte}`);
+         }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        checkoutBtn.textContent = originalBtnText;
+        checkoutBtn.disabled = false;
+        alert(`Checkout berhasil, tetapi gagal mengirim pesan ke WhatsApp.\n\nNomor Pesanan: ${orderData.orderId}\n\n${pesanFonnte}`);
+      });
+    } else {
+      alert("Variant tidak ditemukan.");
+    }
+    closeCartModal();
+  });
+}
+
+</script>
+
+</body></html>
