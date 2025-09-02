@@ -1,464 +1,281 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Katalog iPhone — OpenSheet WebApp</title>
-  <meta name="description" content="WebApp yang mengambil data dari Google Sheet via OpenSheet dan menampilkan item." />
-  <style>
-    :root {
-      --bg: #0b0d10;
-      --panel: #11151a;
-      --text: #e8eef5;
-      --muted: #9fb2c7;
-      --accent: #5cc8ff;
-      --accent-2: #8ef6d2;
-      --danger: #ff6b6b;
-      --shadow: 0 6px 24px rgba(0,0,0,.35);
-      --radius: 14px;
-      --gap: 14px;
-      --grid-min: 230px;
-      --card-bg: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-    }
-    * { box-sizing: border-box }
-    html, body { height: 100% }
-    body {
-      margin: 0;
-      font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      color: var(--text);
-      background: radial-gradient(1200px 600px at 10% -10%, rgba(92,200,255,.12), transparent 60%),
-                  radial-gradient(900px 500px at 100% 0%, rgba(142,246,210,.12), transparent 50%),
-                  var(--bg);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: var(--gap);
-    }
-    header {
-      position: sticky; top: 0; z-index: 20;
-      backdrop-filter: saturate(1.2) blur(8px);
-      background: linear-gradient(180deg, rgba(11,13,16,.9), rgba(11,13,16,.6));
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 16px; }
-    .toolbar {
-      display: grid;
-      grid-template-columns: 1fr auto auto auto;
-      gap: var(--gap);
-      align-items: center;
-    }
-    h1 {
-      margin: 0 0 8px; font-size: 20px; letter-spacing: .2px;
-      background: linear-gradient(90deg, var(--text), var(--accent-2)); -webkit-background-clip: text; color: transparent;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webflow Product Cart</title>
+<style>
+  body { font-family: Arial, sans-serif; margin:0; padding:0; }
+  .product-list { display:flex; flex-wrap:wrap; gap:16px; padding:16px; }
+  .product-card { border:1px solid #ccc; padding:12px; width:200px; border-radius:8px; }
+  .product-image-wrapper { width:100%; text-align:center; margin-bottom:8px; }
+  .product-image { max-width:100%; height:auto; border-radius:4px; }
+  .product-title { font-weight:bold; margin-bottom:4px; }
+  .product-price { color:#333; }
+  .product-sale-price { color:red; font-weight:bold; }
+  .product-action { margin-top:8px; text-align:center; }
+  .add-to-cart-btn { padding:6px 12px; border:none; background:#007BFF; color:white; border-radius:4px; cursor:pointer; }
 
-    .controls {
-      display: contents;
-    }
-    input[type="search"], select, button {
-      border: 1px solid rgba(255,255,255,.12);
-      background: var(--panel);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 10px;
-      outline: none;
-      transition: .2s border, .2s transform, .2s box-shadow;
-      box-shadow: var(--shadow);
-    }
-    input[type="search"]:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(92,200,255,.15);
-    }
-    button {
-      cursor: pointer; border: 1px solid rgba(255,255,255,.16);
-      background: linear-gradient(180deg, #1a222b, #141a21);
-    }
-    button.primary {
-      background: linear-gradient(180deg, #1b2f3d, #14222d);
-      border-color: rgba(92,200,255,.35);
-    }
-    button:hover { transform: translateY(-1px) }
+  /* Modal */
+  .cart-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
+  .cart-modal.show { display:flex; }
+  .cart-body { background:white; padding:24px; border-radius:8px; width:90%; max-width:500px; max-height:90%; overflow:auto; position:relative; }
+  .close-cart { position:absolute; top:8px; right:8px; cursor:pointer; font-size:18px; font-weight:bold; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(var(--grid-min), 1fr));
-      gap: 16px;
-      padding: 0 16px 24px;
-      max-width: 1200px; margin: 0 auto;
-    }
-    .card {
-      background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      min-height: 280px;
-    }
-    .thumb {
-      width: 100%; height: 180px; object-fit: cover; background: #0d1116;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .card-body { padding: 12px 14px; display: grid; gap: 6px }
-    .title { font-weight: 700; font-size: 16px }
-    .desc { color: var(--muted); font-size: 13px; min-height: 38px }
-    .kv { display: flex; flex-wrap: wrap; gap: 6px }
-    .chip {
-      font-size: 12px; color: #cfe6ff;
-      padding: 6px 8px; border-radius: 999px; background: rgba(92,200,255,.12); border: 1px solid rgba(92,200,255,.24)
-    }
-    .price {
-      font-weight: 800;
-      letter-spacing: .2px;
-      color: #b4ffd3;
-      font-size: 18px;
-    }
-    .card-footer {
-      display: flex; justify-content: space-between; align-items: center; padding: 12px 14px;
-      border-top: 1px solid rgba(255,255,255,.08);
-      gap: 8px;
-    }
-    .muted { color: var(--muted); font-size: 12px }
+  /* Cart form */
+  .cart-label { display:block; margin:8px 0 4px; }
+  .cart-input, .cart-select, .cart-textarea { width:100%; padding:6px; margin-bottom:8px; border:1px solid #ccc; border-radius:4px; }
+  .cart-btn { padding:8px 16px; background:#28A745; color:white; border:none; border-radius:4px; cursor:pointer; width:100%; }
+  .cart-continue-wrapper { margin-top:12px; }
+  .cart-product { display:flex; gap:12px; margin-bottom:12px; }
+  .cart-img { width:100px; border-radius:6px; }
 
-    .skeleton {
-      position: relative; overflow: hidden;
-      background: linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.12) 37%, rgba(255,255,255,.06) 63%);
-      background-size: 400% 100%; animation: shimmer 1.1s infinite;
-    }
-    @keyframes shimmer { 0% { background-position: 100% 0 } 100% { background-position: 0 0 } }
-    .thumb.skeleton { height: 180px }
-    .card-body .line { height: 12px; border-radius: 6px }
-    .pagination { display: flex; gap: 8px; justify-content: center; padding: 0 0 28px }
-    .pagination button[disabled] { opacity: .4; cursor: not-allowed }
-    .right { text-align: right }
+  /* Description */
+  .cart-description {
+    margin-top: 12px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #555;
+    line-height: 1.4em;
+  }
 
-    .topbar {
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      margin-top: 6px; color: var(--muted);
-      font-size: 13px;
-    }
-    .badge {
-      border: 1px dashed rgba(255,255,255,.18);
-      padding: 6px 10px; border-radius: 999px;
-    }
-
-    footer { opacity: .75; font-size: 12px; padding-bottom: 20px }
-    a, a:visited { color: var(--accent) }
-  </style>
+  /* Animasi slide untuk customer form */
+  .cart-customer {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+  }
+  .cart-customer.show {
+    max-height: 1000px;
+    opacity: 1;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <h1>📱 Katalog iPhone (OpenSheet)</h1>
-      <div class="toolbar">
-        <div class="topbar">
-          <span class="badge" id="status">Memuat data…</span>
-          <span class="badge" id="count"></span>
+
+<div class="product-list"></div>
+
+<div class="cart-modal">
+  <div class="cart-body">
+    <div class="close-cart">X</div>
+  </div>
+</div>
+
+<script>
+const apiURL = "https://opensheet.elk.sh/138LMOwLK7fTR4IBzaRglPkU-0bkrugUXW-7D4RNLJrA/iphone";
+let allData = [];
+
+function formatRM(num) {
+  return "RM" + Number(num).toLocaleString('ms-MY');
+}
+
+fetch(apiURL)
+  .then(res => res.json())
+  .then(data => {
+    allData = data;
+    const groups = data.reduce((acc, item) => {
+      const groupId = item.item_group_id || "Unknown Group";
+      if (!acc[groupId]) acc[groupId] = item;
+      return acc;
+    }, {});
+
+    const container = document.querySelector(".product-list");
+    container.innerHTML = "";
+
+    for (const groupId in groups) {
+      const item = groups[groupId];
+      const productCard = document.createElement("div");
+      productCard.className = "product-card";
+      productCard.innerHTML = `
+        <div class="product-group">${groupId}</div>
+        <div class="product-image-wrapper">
+          <img class="product-image" src="${item.image_link}" alt="${item.title}" />
         </div>
-        <input id="q" type="search" placeholder="Cari nama / model / warna / apa saja…" autocomplete="off" />
-        <select id="sort">
-          <option value="auto">Urutkan: Otomatis</option>
-          <option value="price-asc">Harga ↑</option>
-          <option value="price-desc">Harga ↓</option>
-          <option value="title-asc">Judul A–Z</option>
-          <option value="title-desc">Judul Z–A</option>
+        <div class="product-info">
+          <div class="product-title">${item.title}</div>
+          <div class="product-price">${formatRM(item.price)}</div>
+          <div class="product-discount">${item.diskon}</div>
+          <div class="product-sale-price">${formatRM(item.sale_price)}</div>
+        </div>
+        <div class="product-action">
+          <button class="add-to-cart-btn" data-groupid="${groupId}">Add to Cart</button>
+        </div>
+      `;
+      container.appendChild(productCard);
+    }
+  })
+  .catch(err => {
+    console.error("Error fetch data:", err);
+    document.querySelector(".product-list").innerHTML = "<div class='load-error'>Gagal memuat data.</div>";
+  });
+
+// Event delegation
+document.body.addEventListener("click", e => {
+  if(e.target.classList.contains("add-to-cart-btn")) {
+    const groupId = e.target.dataset.groupid;
+    openCartModal(groupId);
+    history.replaceState(null, '', `?itemgroupid=${groupId}`);
+  }
+  if(e.target.classList.contains("close-cart")) {
+    closeCartModal();
+  }
+});
+
+function closeCartModal() {
+  const modal = document.querySelector(".cart-modal");
+  modal.classList.remove("show");
+  document.body.style.overflow = "";
+  history.replaceState(null, '', window.location.pathname);
+}
+
+function openCartModal(groupId) {
+  const modal = document.querySelector(".cart-modal");
+  const cartBody = modal.querySelector(".cart-body");
+  const variants = allData.filter(item => item.item_group_id === groupId);
+
+  if (!variants.length) {
+    cartBody.innerHTML = `<div class="close-cart">X</div><p>Tidak ada variant ditemukan.</p>`;
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden";
+    return;
+  }
+
+  const first = variants[0];
+  const colors = [...new Set(variants.map(v => v.color).filter(Boolean))];
+  const sizes = [...new Set(variants.map(v => v.size).filter(Boolean))];
+
+  const formHTML = `
+    <form class="cart-form">
+      <div class="cart-product">
+        <div class="cart-img-wrapper">
+          <img class="cart-img" src="${first.image_link}" alt="${first.title}" />
+        </div>
+        <div>
+          <div class="cart-title">${first.title}</div>
+          <div class="cart-color">${first.color || '-'}</div>
+          <div class="cart-size">${first.size || '-'}</div>
+          <div class="cart-prices">
+            <div class="cart-price">${formatRM(first.price)}</div>
+            <div class="cart-sale-price">${formatRM(first.sale_price || first.price)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-selection">
+        <label class="cart-label">Color</label>
+        <select class="cart-select cart-select-color" name="color">
+          ${colors.map(c => `<option value="${c}">${c}</option>`).join('')}
         </select>
-        <select id="perPage">
-          <option value="8">8 / halaman</option>
-          <option value="12" selected>12 / halaman</option>
-          <option value="24">24 / halaman</option>
-          <option value="48">48 / halaman</option>
+
+        <label class="cart-label">Size</label>
+        <select class="cart-select cart-select-size" name="size">
+          ${sizes.map(s => `<option value="${s}">${s}</option>`).join('')}
         </select>
       </div>
-    </div>
-  </header>
 
-  <main>
-    <section class="grid" id="grid" aria-live="polite"></section>
-    <nav class="pagination" id="pager"></nav>
-  </main>
+      <!-- Description -->
+      <div class="cart-description">
+        ${first.description || "No description available for this product."}
+      </div>
 
-  <footer class="wrap">
-    Data via <a href="https://opensheet.elk.sh/" target="_blank" rel="noreferrer noopener">OpenSheet</a>. 
-    Aplikasi by <strong>HTML + CSS + Javascript</strong> ✔️
-  </footer>
+      <!-- Tombol Continue -->
+      <div class="cart-continue-wrapper">
+        <button type="button" class="cart-btn cart-continue-btn">Continue</button>
+      </div>
 
-  <script>
-    (function () {
-      const ENDPOINT = "https://opensheet.elk.sh/138LMOwLK7fTR4IBzaRglPkU-0bkrugUXW-7D4RNLJrA/iphone";
-      const CACHE_KEY = "opensheet-iphone-cache-v1";
-      const CACHE_TTL = 1000 * 60 * 5; // 5 menit
+      <!-- Bagian customer dengan animasi -->
+      <div class="cart-customer">
+        <label class="cart-label">Nama</label>
+        <input class="cart-input cart-nama" name="nama" type="text" required>
 
-      const el = {
-        grid: document.getElementById("grid"),
-        pager: document.getElementById("pager"),
-        q: document.getElementById("q"),
-        sort: document.getElementById("sort"),
-        perPage: document.getElementById("perPage"),
-        status: document.getElementById("status"),
-        count: document.getElementById("count"),
-      };
+        <label class="cart-label">WhatsApp</label>
+        <input class="cart-input cart-whatsapp" name="whatsapp" type="text" required>
 
-      let state = {
-        raw: [],
-        items: [],
-        filtered: [],
-        page: 1,
-        perPage: parseInt(el.perPage.value, 10),
-        q: "",
-        sort: "auto",
-      };
+        <label class="cart-label">Email</label>
+        <input class="cart-input cart-email" name="email" type="email" required>
 
-      // ---- Utils
-      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-      const sanitize = (s) => (s ?? "").toString().trim();
-      const parsePrice = (val) => {
-        if (val == null) return null;
-        const s = String(val).replace(/[^\d.,-]/g, "").replace(/\./g, "").replace(",", ".");
-        const n = parseFloat(s);
-        return Number.isFinite(n) ? n : null;
-      };
-      const pick = (obj, keys) => keys.map(k => obj[k]).find(v => v != null && String(v).trim() !== "");
+        <label class="cart-label">Alamat Lengkap</label>
+        <textarea class="cart-textarea cart-alamat" name="alamat" required></textarea>
 
-      const TITLE_KEYS = ["nama","name","title","model","tipe","variant"];
-      const DESC_KEYS  = ["deskripsi","description","keterangan","notes","catatan","spec","spesifikasi"];
-      const IMG_KEYS   = ["image","gambar","foto","img","photo","thumbnail","cover","url_image"];
-      const PRICE_KEYS = ["harga","price","harga_idr","price_idr"];
+        <label class="cart-label">Metode Pengiriman</label>
+        <select class="cart-select cart-metode" name="metode" required>
+          <option value="jne">JNE</option>
+          <option value="pos">POS</option>
+          <option value="tiki">TIKI</option>
+        </select>
 
-      function makeSkeleton(count = 8) {
-        el.grid.innerHTML = "";
-        for (let i = 0; i < count; i++) {
-          const card = document.createElement("article");
-          card.className = "card";
-          card.innerHTML = `
-            <div class="thumb skeleton"></div>
-            <div class="card-body">
-              <div class="line skeleton" style="width:70%"></div>
-              <div class="line skeleton" style="width:50%"></div>
-              <div class="line skeleton" style="width:90%; height:32px; margin-top:10px"></div>
-            </div>
-            <div class="card-footer">
-              <span class="line skeleton" style="width:30%; height:20px; border-radius:8px"></span>
-              <span class="line skeleton" style="width:25%; height:20px; border-radius:8px"></span>
-            </div>`;
-          el.grid.appendChild(card);
-        }
-      }
+        <button type="submit" class="cart-btn checkout-btn">Checkout</button>
+      </div>
+    </form>
+  `;
 
-      function detectFields(row) {
-        const title = sanitize(pick(row, TITLE_KEYS)) || "(Tanpa judul)";
-        const desc  = sanitize(pick(row, DESC_KEYS)) || "";
-        const img   = sanitize(pick(row, IMG_KEYS)) || "";
-        const priceRaw = pick(row, PRICE_KEYS);
-        const priceNum = parsePrice(priceRaw);
-        return { title, desc, img, priceNum, priceRaw };
-      }
+  cartBody.innerHTML = `<div class="close-cart">X</div>` + formHTML;
+  modal.classList.add("show");
+  document.body.style.overflow = "hidden";
 
-      function formatIDR(n) {
-        if (n == null) return "";
-        return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
-      }
+  // Update variant on change
+  const imgEl = cartBody.querySelector(".cart-img");
+  const titleEl = cartBody.querySelector(".cart-title");
+  const colorEl = cartBody.querySelector(".cart-color");
+  const sizeEl = cartBody.querySelector(".cart-size");
+  const priceEl = cartBody.querySelector(".cart-price");
+  const saleEl = cartBody.querySelector(".cart-sale-price");
+  const descEl = cartBody.querySelector(".cart-description");
+  const selColor = cartBody.querySelector(".cart-select-color");
+  const selSize = cartBody.querySelector(".cart-select-size");
 
-      function computeChips(row) {
-        const ignore = new Set([...TITLE_KEYS, ...DESC_KEYS, ...IMG_KEYS, ...PRICE_KEYS].map(k=>k.toLowerCase()));
-        const chips = [];
-        for (const [k, v] of Object.entries(row)) {
-          if (!v || typeof v !== "string") continue;
-          if (ignore.has(k.toLowerCase())) continue;
-          const val = v.trim();
-          if (val && val.length <= 24) {
-            chips.push(`${k}: ${val}`);
-          }
-          if (chips.length >= 6) break;
-        }
-        return chips;
-      }
+  function update() {
+    const col = selColor.value;
+    const sz = selSize.value;
+    const v = variants.find(x => x.color === col && x.size === sz);
+    if (v) {
+      imgEl.src = v.image_link;
+      imgEl.alt = v.title;
+      titleEl.textContent = v.title;
+      colorEl.textContent = v.color || '-';
+      sizeEl.textContent = v.size || '-';
+      priceEl.textContent = formatRM(v.price);
+      saleEl.textContent = formatRM(v.sale_price || v.price);
+      descEl.textContent = v.description || "No description available for this product.";
+    }
+  }
+  selColor.addEventListener('change', update);
+  selSize.addEventListener('change', update);
+  update();
 
-      function render() {
-        const { page, perPage, filtered } = state;
-        const total = filtered.length;
-        const pages = Math.max(1, Math.ceil(total / perPage));
-        const start = (page - 1) * perPage;
-        const slice = filtered.slice(start, start + perPage);
+  // Event Continue
+  const continueBtn = cartBody.querySelector(".cart-continue-btn");
+  const customerSection = cartBody.querySelector(".cart-customer");
+  continueBtn.addEventListener("click", () => {
+    customerSection.classList.add("show");
+    continueBtn.parentElement.style.display = "none";
+  });
 
-        el.grid.innerHTML = "";
-        for (const item of slice) {
-          const { title, desc, img, priceNum, priceRaw, _row } = item;
-          const chips = computeChips(_row);
-          const card = document.createElement("article");
-          card.className = "card";
+  // Submit checkout
+  cartBody.querySelector(".cart-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const col = selColor.value;
+    const sz = selSize.value;
+    const v = variants.find(x => x.color === col && x.size === sz);
+    if (v) {
+      alert(`Checkout:\n${v.title}\n${v.color} / ${v.size}\nHarga: ${formatRM(v.sale_price || v.price)}`);
+    } else {
+      alert("Variant tidak ditemukan.");
+    }
+    closeCartModal();
+  });
+}
 
-          const safeImg = img ? img : "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
-            `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 360'>
-              <defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#0f1720'/><stop offset='1' stop-color='#111a23'/></linearGradient></defs>
-              <rect width='600' height='360' fill='url(#g)'/>
-              <g fill='#5cc8ff' opacity='.7' font-family='sans-serif' font-size='22'>
-                <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'>Tidak ada gambar</text>
-              </g>
-            </svg>`
-          );
+// Auto open modal jika ?itemgroupid ada
+const urlParams = new URLSearchParams(window.location.search);
+const itemGroupId = urlParams.get("itemgroupid");
+if (itemGroupId) {
+  openCartModal(itemGroupId);
+}
+</script>
 
-          card.innerHTML = `
-            <img class="thumb" alt="" loading="lazy" src="${safeImg}">
-            <div class="card-body">
-              <div class="title">${escapeHTML(title)}</div>
-              <div class="desc">${escapeHTML(desc || "")}</div>
-              <div class="kv">${chips.map(c => `<span class="chip">${escapeHTML(c)}</span>`).join("")}</div>
-            </div>
-            <div class="card-footer">
-              <span class="price">${priceNum != null ? formatIDR(priceNum) : escapeHTML(priceRaw ?? "")}</span>
-              <span class="muted right">${Object.keys(_row).length} kolom</span>
-            </div>
-          `;
-          el.grid.appendChild(card);
-        }
-
-        el.count.textContent = `${total} item · Halaman ${page}/${pages}`;
-        renderPager(pages);
-      }
-
-      function renderPager(pages) {
-        const { page } = state;
-        const btn = (label, go, disabled = false) => {
-          const b = document.createElement("button");
-          b.textContent = label;
-          b.disabled = disabled;
-          b.addEventListener("click", () => { state.page = go; render(); window.scrollTo({top:0, behavior:"smooth"}); });
-          return b;
-        };
-        el.pager.innerHTML = "";
-        el.pager.append(
-          btn("« Awal", 1, page === 1),
-          btn("‹ Sebelumnya", Math.max(1, page - 1), page === 1),
-        );
-        // inline page numbers (windowed)
-        const windowSize = 5;
-        const start = Math.max(1, page - Math.floor(windowSize/2));
-        const end = Math.max(windowSize, Math.min(start + windowSize - 1, pages));
-        for (let p = Math.max(1, end - windowSize + 1); p <= end; p++) {
-          const b = btn(String(p), p, p === page);
-          if (p === page) b.classList.add("primary");
-          el.pager.appendChild(b);
-        }
-        el.pager.append(
-          btn("Berikutnya ›", Math.min(pages, page + 1), page === pages),
-          btn("Akhir »", pages, page === pages),
-        );
-      }
-
-      function applyFilters() {
-        const needle = state.q.toLowerCase();
-        const items = state.items.slice();
-
-        let filtered = items.filter(it => {
-          if (!needle) return true;
-          return it._hay.includes(needle);
-        });
-
-        // Sorting
-        switch (state.sort) {
-          case "price-asc": filtered.sort(byPriceAsc); break;
-          case "price-desc": filtered.sort(byPriceDesc); break;
-          case "title-asc": filtered.sort((a,b)=>a.title.localeCompare(b.title, "id")); break;
-          case "title-desc": filtered.sort((a,b)=>b.title.localeCompare(a.title, "id")); break;
-          default:
-            // auto: price desc if available else title
-            const withPrice = filtered.some(f => f.priceNum != null);
-            filtered.sort(withPrice ? byPriceDesc : (a,b)=>a.title.localeCompare(b.title,"id"));
-        }
-
-        state.filtered = filtered;
-        state.page = 1;
-        render();
-      }
-
-      function byPriceAsc(a, b) {
-        if (a.priceNum == null && b.priceNum == null) return a.title.localeCompare(b.title, "id");
-        if (a.priceNum == null) return 1;
-        if (b.priceNum == null) return -1;
-        return a.priceNum - b.priceNum;
-      }
-      function byPriceDesc(a, b) {
-        if (a.priceNum == null && b.priceNum == null) return a.title.localeCompare(b.title, "id");
-        if (a.priceNum == null) return 1;
-        if (b.priceNum == null) return -1;
-        return b.priceNum - a.priceNum;
-      }
-
-      function normalizeItem(row) {
-        const meta = detectFields(row);
-        // search haystack: join all values
-        const hay = Object.values(row).map(v => sanitize(v).toLowerCase()).join(" • ");
-        return { ...meta, _row: row, _hay: hay, title: meta.title };
-      }
-
-      function escapeHTML(s) {
-        return String(s)
-          .replaceAll("&","&amp;")
-          .replaceAll("<","&lt;")
-          .replaceAll(">","&gt;")
-          .replaceAll('"',"&quot;")
-          .replaceAll("'","&#39;");
-      }
-
-      async function fetchWithCache(url) {
-        try {
-          const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
-          if (cached && (Date.now() - cached.time) < CACHE_TTL && Array.isArray(cached.data)) {
-            return { data: cached.data, cached: true };
-          }
-        } catch (_) {}
-
-        const res = await fetch(url, { headers: { "Accept": "application/json" } });
-        if (!res.ok) throw new Error(`Gagal memuat (${res.status})`);
-        const data = await res.json();
-        try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), data }));
-        } catch (_) {}
-        return { data, cached: false };
-      }
-
-      async function bootstrap() {
-        try {
-          makeSkeleton(8);
-          el.status.textContent = "Mengambil data…";
-          const { data, cached } = await fetchWithCache(ENDPOINT);
-          state.raw = Array.isArray(data) ? data : [];
-          state.items = state.raw.map(normalizeItem);
-          el.status.textContent = `Selesai ${cached ? "(cache)" : ""}`;
-          applyFilters();
-        } catch (err) {
-          console.error(err);
-          el.grid.innerHTML = `
-            <div class="wrap">
-              <div class="card" style="padding:18px">
-                <div class="title">Terjadi kesalahan</div>
-                <p class="desc">Tidak bisa memuat data dari OpenSheet. Coba cek koneksi atau pastikan sheet bisa diakses publik.</p>
-                <code style="background:#0e141a; padding:10px 12px; border-radius:8px; display:block; border:1px solid rgba(255,255,255,.08); overflow:auto">${escapeHTML(String(err))}</code>
-              </div>
-            </div>`;
-          el.status.textContent = "Gagal memuat";
-        }
-      }
-
-      // ---- Events
-      el.q.addEventListener("input", (e) => {
-        state.q = e.target.value;
-        applyFilters();
-      });
-      el.sort.addEventListener("change", (e) => {
-        state.sort = e.target.value;
-        applyFilters();
-      });
-      el.perPage.addEventListener("change", (e) => {
-        state.perPage = parseInt(e.target.value, 10);
-        state.page = 1;
-        render();
-      });
-
-      // Start
-      bootstrap();
-    })();
-  </script>
 </body>
 </html>
