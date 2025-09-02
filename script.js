@@ -96,7 +96,6 @@ function renderDiscountProducts() {
         productCard.className = 'product-card';
         productCard.innerHTML = `
             <img src="${product.image_link}" alt="${product.title}" class="product-image">
-            <div class="discount-badge">Diskon ${product.diskon}</div>
             <a href="#" class="bookmark-icon"><i class="far fa-bookmark"></i></a>
             <div class="product-info">
                 <h3 class="product-title">${product.title}</h3>
