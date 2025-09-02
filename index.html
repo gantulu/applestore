@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnCloudStore.id</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="back-button">
+                <a href="#"><i class="fas fa-arrow-left"></i></a>
+            </div>
+            <div class="store-name">oncloudstore.id</div>
+            <div class="header-icons">
+                <a href="#" class="search-icon"><i class="fas fa-search"></i></a>
+                <a href="#" class="menu-icon"><i class="fas fa-bars"></i></a>
+            </div>
+        </div>
+        <nav class="category-nav">
+            <div class="category-container">
+                <button class="category-btn active">Kategori</button>
+                <button class="category-btn">Promo</button>
+                <button class="category-btn">Semua produk</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="products-grid">
+            <!-- Products will be loaded here dynamically -->
+        </section>
+
+        <section class="discount-section">
+            <div class="section-header">
+                <h2>Sedang diskon</h2>
+                <a href="#" class="view-all">Lihat semua</a>
+            </div>
+            <div class="discount-products">
+                <!-- Discounted products will be loaded here dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <div class="product-detail-modal" id="productDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="back-button"><i class="fas fa-arrow-left"></i></a>
+                <div class="store-name">oncloudstore.id</div>
+                <div class="header-icons">
+                    <a href="#" class="search-icon"><i class="fas fa-search"></i></a>
+                    <a href="#" class="bookmark-icon"><i class="far fa-bookmark"></i></a>
+                    <a href="#" class="close-button"><i class="fas fa-times"></i></a>
+                </div>
+            </div>
+            <div class="product-images-slider">
+                <div class="slider-container">
+                    <!-- Product images will be loaded here -->
+                </div>
+                <div class="slider-pagination">
+                    <!-- Pagination dots will be added here -->
+                </div>
+            </div>
+            <div class="product-info">
+                <h1 class="product-title"></h1>
+                <div class="product-price-container">
+                    <div class="original-price"></div>
+                    <div class="sale-price"></div>
+                    <div class="discount-badge"></div>
+                </div>
+                <div class="product-variants">
+                    <div class="variant-selects">
+                        <div class="variant-select-group">
+                            <label for="color-select">Warna:</label>
+                            <select id="color-select" class="variant-select">
+                                <!-- Color options will be loaded here -->
+                            </select>
+                        </div>
+                        <div class="variant-select-group">
+                            <label for="size-select">Ukuran:</label>
+                            <select id="size-select" class="variant-select">
+                                <!-- Size options will be loaded here -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="variant-preview">
+                        <!-- Selected variant preview will be shown here -->
+                    </div>
+                </div>
+                <div class="product-description">
+                    <!-- Product description will be loaded here -->
+                </div>
+                <div class="action-button">
+                    <button class="view-website-btn">Lihat di Situs Web</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
