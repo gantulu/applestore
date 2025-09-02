@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      padding: 30px;
+    }
+    .container {
+      background: white;
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    input {
+      padding: 10px;
+      width: 70%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    li.done {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 Todo App</h1>
+    <input type="text" id="taskInput" placeholder="Tambahkan tugas...">
+    <button onclick="addTask()">Tambah</button>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      const taskText = input.value.trim();
+      if (taskText === "") return;
+
+      const li = document.createElement("li");
+      li.textContent = taskText;
+
+      // klik untuk tandai selesai
+      li.onclick = () => li.classList.toggle("done");
+
+      // tombol hapus
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "❌";
+      delBtn.style.marginLeft = "10px";
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        li.remove();
+      };
+
+      li.appendChild(delBtn);
+      document.getElementById("taskList").appendChild(li);
+
+      input.value = "";
+    }
+  </script>
+</body>
+</html>
